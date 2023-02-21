@@ -1,11 +1,14 @@
-import { stats, getRandom, getDelta } from "./helpers.js";
+import { stats, getRandomBetween, createFPSLimiter } from "./helpers.js";
+const uncapCheckbox = document.getElementById('uncap-checkbox');
 const canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
 const particlesArray = [];
-let dt = 0;
+const fpsIntervalElapsed = createFPSLimiter(60);
+let dt = 0.05;
 let hue = 0;
+let uncapped = false;
 const mouse = {
     x: 0,
     y: 0,
@@ -15,6 +18,7 @@ const mouse = {
         this.y = newY;
     }
 };
+uncapCheckbox.addEventListener('change', function () { uncapped = this.checked; });
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -35,10 +39,11 @@ class Particle {
         const speed = 60;
         this.x = mouse.x;
         this.y = mouse.y;
-        this.radius = getRandom(6, 10);
-        this.speedX = getRandom(-speed, speed);
-        this.speedY = getRandom(-speed, speed);
+        this.radius = getRandomBetween(6, 10);
+        this.speedX = getRandomBetween(-speed, speed);
+        this.speedY = getRandomBetween(-speed, speed);
         this.color = `hsl(${hue}, 100%, 50%)`;
+        this.isDone = false;
     }
     shrink() {
         if (this.radius > 0.2)
@@ -55,23 +60,25 @@ class Particle {
         ctx.fill();
     }
     update() {
+        if (this.radius <= 0.3)
+            this.isDone = true;
         this.shrink();
         this.move();
         this.draw();
     }
 }
-const render = () => {
-    stats.begin();
-    dt = getDelta();
-    hue += 200 * dt;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    particlesArray.forEach((particle, index) => {
-        particle.update();
-        if (particle.radius <= 0.3)
-            particlesArray.splice(index, 1);
-    });
-    stats.end();
+const render = (now) => {
     requestAnimationFrame(render);
+    if (uncapped || fpsIntervalElapsed(now)) {
+        stats.begin();
+        hue += 200 * dt;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particlesArray.forEach((particle, index) => {
+            particle.update();
+            if (particle.isDone)
+                particlesArray.splice(index, 1);
+        });
+        stats.end();
+    }
 };
-render();
+render(0);
