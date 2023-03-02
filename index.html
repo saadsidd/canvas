@@ -4,17 +4,34 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/styles.css">
   <title>Canvas Playground</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: black;
-    }
-  </style>
 </head>
 <body>
-  <canvas id="canvas" width="600" height="600"></canvas>
-  <script type="module" src="./dist/main.js"></script>
+
+  <nav>
+    <a class="project" href="./html/canvas1.html" target="my-canvas">Canvas 1</a>
+    <a class="project" href="./html/canvas2.html" target="my-canvas">Canvas 2</a>
+    <a class="project" href="./html/canvas3.html" target="my-canvas">Canvas 3</a>
+    <a class="project" href="./html/canvas4.html" target="my-canvas">Canvas 4</a>
+  </nav>
+
+  <main>Select a canvas project</main>
+
+  <iframe name="my-canvas"></iframe>
+
+  <script>
+    const navBar = document.querySelector('nav');
+    const initialMessage = document.querySelector('main');
+    const iframe = document.querySelector('iframe');
+
+    // Remove 'Select a canvas project' message and show iframe instead
+    navBar.addEventListener('click', (event) => {
+      if (initialMessage.style.display !== 'none' && event.target.tagName === 'A') {
+        initialMessage.style.display = 'none';
+        iframe.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
