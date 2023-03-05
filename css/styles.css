@@ -9,8 +9,6 @@ html, body {
 body {
   display: flex;
   margin: 0;
-  /* overflow: hidden; */
-  /* background-color: black; */
   background-color: rgb(55, 55, 55);
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   user-select: none;
@@ -48,8 +46,12 @@ a {
     rgba(0, 0, 0, 0.25) -3px 3px 12px;
 }
 
-.project:hover {
+.project.selected {
   border: 3px solid white;
+}
+
+.project:hover {
+  border: 3px solid lightblue;
 }
 
 main {

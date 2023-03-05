@@ -14,6 +14,7 @@
     <a class="project" href="./html/canvas2.html" target="my-canvas">Canvas 2</a>
     <a class="project" href="./html/canvas3.html" target="my-canvas">Canvas 3</a>
     <a class="project" href="./html/canvas4.html" target="my-canvas">Canvas 4</a>
+    <a class="project" href="./html/canvas5.html" target="my-canvas">Canvas 5</a>
   </nav>
 
   <main>Select a canvas project</main>
@@ -22,14 +23,19 @@
 
   <script>
     const navBar = document.querySelector('nav');
+    const navChildren = [...navBar.children];
     const initialMessage = document.querySelector('main');
     const iframe = document.querySelector('iframe');
 
     // Remove 'Select a canvas project' message and show iframe instead
     navBar.addEventListener('click', (event) => {
-      if (initialMessage.style.display !== 'none' && event.target.tagName === 'A') {
-        initialMessage.style.display = 'none';
-        iframe.style.display = 'block';
+      if (event.target.tagName === 'A') {
+        if (initialMessage.style.display !== 'none') {
+          initialMessage.style.display = 'none';
+          iframe.style.display = 'block';
+        }
+        navChildren.forEach(child => child.classList.remove('selected'));
+        event.target.classList.add('selected');
       }
     });
   </script>
