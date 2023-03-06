@@ -1,14 +1,12 @@
-import { stats, getRandomBetween, createFPSLimiter } from "./helpers.js";
-const uncapCheckbox = document.getElementById('uncap-checkbox');
+import { getRandomBetween, createFPSLimiter } from "./helpers.js";
+const trailsCheckbox = document.getElementById('trails-checkbox');
 const canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d');
 const particlesArray = [];
 const fpsIntervalElapsed = createFPSLimiter(60);
-let dt = 0.05;
-let hue = 0;
-let uncapped = false;
+let showTrails = false;
 const mouse = {
     x: 0,
     y: 0,
@@ -18,7 +16,7 @@ const mouse = {
         this.y = newY;
     }
 };
-uncapCheckbox.addEventListener('change', function () { uncapped = this.checked; });
+trailsCheckbox.addEventListener('change', function () { showTrails = this.checked; });
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -36,22 +34,23 @@ canvas.addEventListener('mousemove', (event) => {
 });
 class Particle {
     constructor() {
-        const speed = 60;
+        const speed = 2;
         this.x = mouse.x;
         this.y = mouse.y;
         this.radius = getRandomBetween(6, 10);
         this.speedX = getRandomBetween(-speed, speed);
         this.speedY = getRandomBetween(-speed, speed);
-        this.color = `hsl(${hue}, 100%, 50%)`;
+        this.color = `hsl(${Particle.hue}, 100%, 50%)`;
         this.isDone = false;
+        Particle.hue += 0.5;
     }
     shrink() {
         if (this.radius > 0.2)
-            this.radius -= 3 * dt;
+            this.radius -= 0.15;
     }
     move() {
-        this.x += this.speedX * dt;
-        this.y += this.speedY * dt;
+        this.x += this.speedX;
+        this.y += this.speedY;
     }
     draw() {
         ctx.fillStyle = this.color;
@@ -67,18 +66,22 @@ class Particle {
         this.draw();
     }
 }
+Particle.hue = Math.floor(Math.random() * 360);
 const render = (now) => {
-    requestAnimationFrame(render);
-    if (uncapped || fpsIntervalElapsed(now)) {
-        stats.begin();
-        hue += 200 * dt;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (fpsIntervalElapsed(now)) {
+        if (showTrails) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
         particlesArray.forEach((particle, index) => {
             particle.update();
             if (particle.isDone)
                 particlesArray.splice(index, 1);
         });
-        stats.end();
     }
+    requestAnimationFrame(render);
 };
 render(0);

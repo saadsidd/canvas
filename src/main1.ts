@@ -1,7 +1,9 @@
-import { stats, getRandomBetween, getDelta, createFPSLimiter } from "./helpers.js";
+// Shrinking Color Particles Project
+
+import { getRandomBetween, createFPSLimiter } from "./helpers.js";
 import Mouse from "./interfaces/mouse.js";
 
-const uncapCheckbox = document.getElementById('uncap-checkbox') as HTMLInputElement;
+const trailsCheckbox = document.getElementById('trails-checkbox') as HTMLInputElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -9,10 +11,7 @@ canvas.height = window.innerHeight;
 const ctx = canvas.getContext('2d')!;
 const particlesArray: Particle[] = [];
 const fpsIntervalElapsed = createFPSLimiter(60);
-
-let dt = 0.05;
-let hue = 0;
-let uncapped = false;
+let showTrails = false;
 
 const mouse: Mouse = {
   x: 0,
@@ -22,9 +21,9 @@ const mouse: Mouse = {
     this.x = newX;
     this.y = newY;
   }
-}
+};
 
-uncapCheckbox.addEventListener('change', function(): void { uncapped = this.checked });
+trailsCheckbox.addEventListener('change', function(): void { showTrails = this.checked });
 
 window.addEventListener('resize', (): void => {
   canvas.width = window.innerWidth;
@@ -53,26 +52,29 @@ class Particle {
   color: string;
   isDone: boolean;
 
+  static hue = Math.floor(Math.random() * 360);
+
   constructor() {
-    const speed = 60;
+    const speed = 2;
 
     this.x = mouse.x;
     this.y = mouse.y;
     this.radius = getRandomBetween(6, 10);
     this.speedX = getRandomBetween(-speed, speed);
     this.speedY = getRandomBetween(-speed, speed);
-    // this.color = `hsl(${getRandom(0, 360)}, 100%, 50%)`;
-    this.color = `hsl(${hue}, 100%, 50%)`;
+    this.color = `hsl(${Particle.hue}, 100%, 50%)`;
     this.isDone = false;
+
+    Particle.hue += 0.5;
   }
 
   shrink(): void {
-    if (this.radius > 0.2) this.radius -= 3 * dt;
+    if (this.radius > 0.2) this.radius -= 0.15;
   }
 
   move(): void {
-    this.x += this.speedX * dt;
-    this.y += this.speedY * dt;
+    this.x += this.speedX;
+    this.y += this.speedY;
   }
 
   draw(): void {
@@ -91,28 +93,25 @@ class Particle {
 }
 
 const render = (now: DOMHighResTimeStamp) => {
-
-  requestAnimationFrame(render);
-
-  if (uncapped || fpsIntervalElapsed(now)) {
-    stats.begin();
+  
+  if (fpsIntervalElapsed(now)) {
     
-    // dt = getDelta();
-    hue += 200 * dt;
-  
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
+    if (showTrails) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
     particlesArray.forEach((particle: Particle, index: number): void => {
       particle.update();
       if (particle.isDone) particlesArray.splice(index, 1);
     });
-  
-    stats.end();
+    
   }
-
+  
+  requestAnimationFrame(render);
 
 }
 
