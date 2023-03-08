@@ -1,12 +1,20 @@
-import { stats, createCenterCrosshair, createFPSLimiter } from "./helpers.js";
-console.log('main3');
-const canvas = document.getElementById('canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const ctx = canvas.getContext('2d');
-const particlesArray = [];
+import { createFPSLimiter } from "./helpers.js";
+const radiusInput = document.getElementById('dot-radius');
+const colorInput = document.getElementById('color-select');
+const smoothnessInput = document.getElementById('smoothness');
+const clearButton = document.getElementById('clear-button');
+const dotCanvas = document.getElementById('dot-canvas');
+dotCanvas.width = window.innerWidth;
+dotCanvas.height = window.innerHeight;
+const dotCTX = dotCanvas.getContext('2d');
+const drawingCanvas = document.getElementById('drawing-canvas');
+drawingCanvas.width = window.innerWidth;
+drawingCanvas.height = window.innerHeight;
+const drawingCTX = drawingCanvas.getContext('2d', { alpha: false });
 const fpsIntervalElapsed = createFPSLimiter(60);
-const drawCenterCrosshair = createCenterCrosshair();
+let dotRadius = parseFloat(radiusInput.value);
+let color = colorInput.value;
+let smoothness = parseInt(smoothnessInput.value);
 const mouse = {
     x: 0,
     y: 0,
@@ -16,53 +24,71 @@ const mouse = {
         this.y = newY;
     }
 };
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
-canvas.addEventListener('mousedown', () => { mouse.clicked = true; });
-canvas.addEventListener('mouseup', () => { mouse.clicked = false; });
-canvas.addEventListener('mouseleave', () => { mouse.clicked = false; });
-canvas.addEventListener('mousemove', (event) => {
-    mouse.update(event.offsetX, event.offsetY);
-    if (mouse.clicked && particlesArray.length < 1000) {
-        particlesArray.push(new Particle(mouse, canvas));
-    }
-});
-canvas.addEventListener('click', (event) => {
-    if (particlesArray.length < 1000) {
-        mouse.update(event.offsetX, event.offsetY);
-        particlesArray.push(new Particle(mouse, canvas));
-    }
-});
-export class Particle {
-    constructor(mouse, canvas) {
-        this.x = mouse.x;
-        this.y = mouse.y;
-        this.radius = 6;
-        this.color = `hsl(${Particle.hue}, 100%, 50%)`;
-        this.isDone = false;
-        Particle.hue += 1;
-    }
+const dot = {
+    x: 50,
+    y: 50,
+    speedX: 0,
+    speedY: 0,
+    move() {
+        const dx = (mouse.x - this.x) / smoothness;
+        const dy = (mouse.y - this.y) / smoothness;
+        this.x += dx;
+        this.y += dy;
+    },
     draw() {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
+        dotCTX.fillStyle = 'white';
+        dotCTX.beginPath();
+        dotCTX.arc(this.x, this.y, dotRadius, 0, Math.PI * 2);
+        dotCTX.fill();
+    },
+    drawOnCanvas() {
+        drawingCTX.strokeStyle = color;
+        drawingCTX.lineWidth = dotRadius * 2;
+        drawingCTX.lineCap = 'round';
+        drawingCTX.lineTo(this.x, this.y);
+        drawingCTX.stroke();
+    },
+    update() {
+        this.move();
+        this.draw();
+        if (mouse.clicked) {
+            this.drawOnCanvas();
+        }
     }
-}
-Particle.hue = Math.floor(Math.random() * 360);
+};
+radiusInput.addEventListener('input', function () { dotRadius = parseFloat(this.value); });
+colorInput.addEventListener('change', function () { color = this.value; });
+smoothnessInput.addEventListener('input', function () { smoothness = parseInt(this.value); });
+clearButton.addEventListener('click', () => { drawingCTX.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height); });
+window.addEventListener('resize', () => {
+    dotCanvas.width = window.innerWidth;
+    dotCanvas.height = window.innerHeight;
+    drawingCanvas.width = window.innerWidth;
+    drawingCanvas.height = window.innerHeight;
+});
+dotCanvas.addEventListener('mousedown', () => {
+    mouse.clicked = true;
+    dot.x = mouse.x;
+    dot.y = mouse.y;
+});
+dotCanvas.addEventListener('mouseup', () => {
+    mouse.clicked = false;
+    drawingCTX.beginPath();
+});
+dotCanvas.addEventListener('mouseleave', () => {
+    mouse.clicked = false;
+    drawingCTX.beginPath();
+});
+dotCanvas.addEventListener('mousemove', (event) => {
+    mouse.update(event.offsetX, event.offsetY);
+});
+dotCanvas.addEventListener('click', (event) => {
+    mouse.update(event.offsetX, event.offsetY);
+});
 const render = (now) => {
     if (fpsIntervalElapsed(now)) {
-        stats.begin();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawCenterCrosshair(ctx, canvas);
-        particlesArray.forEach((particle, index) => {
-            particle.draw();
-            if (particle.isDone)
-                particlesArray.splice(index, 1);
-        });
-        stats.end();
+        dotCTX.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
+        dot.update();
     }
     requestAnimationFrame(render);
 };

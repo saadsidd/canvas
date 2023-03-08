@@ -1,20 +1,32 @@
+// Smoothed Pen Drawing App
 
-import { stats, createCenterCrosshair, createFPSLimiter } from "./helpers.js";
+import { createFPSLimiter } from "./helpers.js";
 import Mouse from "./interfaces/mouse.js";
-console.log('main3');
 
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const radiusInput = document.getElementById('dot-radius') as HTMLInputElement;
+const colorInput = document.getElementById('color-select') as HTMLInputElement;
+const smoothnessInput = document.getElementById('smoothness') as HTMLInputElement;
+const clearButton = document.getElementById('clear-button') as HTMLButtonElement;
 
-const ctx = canvas.getContext('2d')!;
-const particlesArray: Particle[] = [];
+const dotCanvas = document.getElementById('dot-canvas') as HTMLCanvasElement;
+dotCanvas.width = window.innerWidth;
+dotCanvas.height = window.innerHeight;
+const dotCTX = dotCanvas.getContext('2d')!;
+
+const drawingCanvas = document.getElementById('drawing-canvas') as HTMLCanvasElement;
+drawingCanvas.width = window.innerWidth;
+drawingCanvas.height = window.innerHeight;
+const drawingCTX = drawingCanvas.getContext('2d', { alpha: false })!;
+
 const fpsIntervalElapsed = createFPSLimiter(60);
-const drawCenterCrosshair = createCenterCrosshair();
+
+let dotRadius = parseFloat(radiusInput.value);
+let color = colorInput.value;
+let smoothness = parseInt(smoothnessInput.value);
 
 const mouse: Mouse = {
   x: 0,
-  y: 0, 
+  y: 0,
   clicked: false,
   update(newX, newY) {
     this.x = newX;
@@ -22,74 +34,83 @@ const mouse: Mouse = {
   }
 }
 
+const dot = {
+  x: 50,
+  y: 50,
+  speedX: 0,
+  speedY: 0,
+  move() {
+    const dx = (mouse.x - this.x) / smoothness;
+    const dy = (mouse.y - this.y) / smoothness;
+    this.x += dx;
+    this.y += dy;
+  },
+  draw() {
+    dotCTX.fillStyle = 'white';
+    dotCTX.beginPath();
+    dotCTX.arc(this.x, this.y, dotRadius, 0, Math.PI * 2);
+    dotCTX.fill();
+  },
+  drawOnCanvas() {
+    drawingCTX.strokeStyle = color;
+    drawingCTX.lineWidth = dotRadius * 2;
+    drawingCTX.lineCap = 'round';
+    drawingCTX.lineTo(this.x, this.y);
+    drawingCTX.stroke();
+  },
+  update() {
+    this.move();
+    this.draw();
+    if (mouse.clicked) {
+      this.drawOnCanvas();
+    }
+  }
+};
+
+radiusInput.addEventListener('input', function() { dotRadius = parseFloat(this.value) });
+colorInput.addEventListener('change', function() { color = this.value });
+smoothnessInput.addEventListener('input', function() { smoothness = parseInt(this.value) });
+clearButton.addEventListener('click', () => { drawingCTX.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height) });
+
 window.addEventListener('resize', (): void => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  dotCanvas.width = window.innerWidth;
+  dotCanvas.height = window.innerHeight;
+
+  drawingCanvas.width = window.innerWidth;
+  drawingCanvas.height = window.innerHeight;
 });
 
-canvas.addEventListener('mousedown', (): void => { mouse.clicked = true });
-canvas.addEventListener('mouseup', (): void =>  { mouse.clicked = false });
-canvas.addEventListener('mouseleave', (): void => { mouse.clicked = false });
+dotCanvas.addEventListener('mousedown', (): void => {
+  mouse.clicked = true;
+  dot.x = mouse.x;
+  dot.y = mouse.y;
+});
+dotCanvas.addEventListener('mouseup', (): void =>  {
+  mouse.clicked = false;
+  drawingCTX.beginPath();
+});
+dotCanvas.addEventListener('mouseleave', (): void => {
+  mouse.clicked = false;
+  drawingCTX.beginPath();
+});
 
-canvas.addEventListener('mousemove', (event: MouseEvent): void => {
+dotCanvas.addEventListener('mousemove', (event: MouseEvent): void => {
   mouse.update(event.offsetX, event.offsetY);
-  if (mouse.clicked && particlesArray.length < 1000) {
-    particlesArray.push(new Particle(mouse, canvas));
-  }
 });
 
-canvas.addEventListener('click', (event: MouseEvent): void => {
-  if (particlesArray.length < 1000) {
-    mouse.update(event.offsetX, event.offsetY);
-    particlesArray.push(new Particle(mouse, canvas));
-  }
+dotCanvas.addEventListener('click', (event: MouseEvent): void => {
+  mouse.update(event.offsetX, event.offsetY);
 });
-
-export class Particle {
-  x: number;
-  y: number;
-  radius: number;
-  color: string;
-  isDone: boolean;
-
-  static hue = Math.floor(Math.random() * 360);
-
-  constructor(mouse: Mouse, canvas: HTMLCanvasElement) {
-    this.x = mouse.x;
-    this.y = mouse.y;
-    this.radius = 6;
-    this.color = `hsl(${Particle.hue}, 100%, 50%)`;
-    this.isDone = false;
-
-    Particle.hue += 1;
-  }
-
-  draw(): void {
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
 
 const render = (now: DOMHighResTimeStamp) => {
   
   if (fpsIntervalElapsed(now)) {
-    stats.begin();
     
     // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.fillStyle = 'rgba(0, 0, 0, 0.09)';
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    drawCenterCrosshair(ctx, canvas);
-    
-    particlesArray.forEach((particle: Particle, index: number): void => {
-      particle.draw();
-      if (particle.isDone) particlesArray.splice(index, 1);
-    });
-    
-    stats.end();
+    dotCTX.clearRect(0, 0, dotCanvas.width, dotCanvas.height);
+
+    dot.update();
+
   }
 
   requestAnimationFrame(render);
