@@ -4,17 +4,60 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas 1</title>
+  <title>Canvas 3</title>
   <style>
     body {
       background-color: black;
       margin: 0;
       overflow: hidden;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+    }
+
+    header {
+      color: white;
+      text-align: center;
+      background-color: rgb(40, 40, 40);
+      padding: 5px 0px;
+    }
+
+    button {
+      width: 140px;
+      font-weight: 900;
+      background-color: papayawhip;
+    }
+
+    button:hover {
+      background-color: salmon;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    #dot-canvas {
+      z-index: 2;
+      background-color: transparent;
+      position: absolute;
+    }
+
+    #drawing-canvas {
+      z-index: 1;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <header>
+    smooth drawing canvas / click+drag mouse to draw /
+    <input type="range" id="dot-radius" min="0.5" max="5" step="0.5" value="2"> Size /
+    <input type="color" id="color-select" value="#dd0000"> Color /
+    <input type="range" id="smoothness" min="2" max="20" step="1" value="2"> Smoothness /
+    <button id="clear-button">Clear Canvas</button>
+  </header>
+  <canvas id="dot-canvas"></canvas>
+  <canvas id="drawing-canvas"></canvas>
   <script type="module" src="../dist/main3.js"></script>
 </body>
 </html>
