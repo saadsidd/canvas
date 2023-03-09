@@ -1,19 +1,23 @@
-// matrix
-import { stats, getRandomBetween, createFPSLimiter } from "./helpers.js";
+// Matrix Code Rain Project
 
+import { getRandomBetween, createFPSLimiter } from "./helpers.js";
+
+const hueCheckbox = document.getElementById('hue-checkbox') as HTMLInputElement;
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext('2d')!;
-ctx.textAlign = 'center';
 const fpsIntervalElapsed = createFPSLimiter(15);
 
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890π∏∂∆‡µ¶Ψþÿ§ꟿꞶꞵꞗꜺꜾꝊꞜꟻꭄꬶꬼꭊ♭♪∇∂々アイウエオカキクケコサシスセソタチツテトナニヌネハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ';
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890π∏∂∆‡µ¶Ψþÿ§ꟻ∂אהﬠפ♫ᴌΦϞϛ϶ЂЖѱᴓ々アイウエオカキクケコサシスセソタチツテトナニヌネハヒフヘホマミムメモヤユヨラリルレロワヰヱヲ';
 const columnsArray: Column[] = [];
 let columnHeight = Math.ceil(canvas.height / 20) + 1;
 let rowLength = Math.ceil(canvas.width / 20) + 1;
+let hue = 0;
+let useHue = false;
 
+hueCheckbox.addEventListener('change', function(): void { useHue = this.checked });
 
 window.addEventListener('resize', (): void => {
   canvas.width = window.innerWidth;
@@ -58,16 +62,20 @@ class Column {
       this.y++;
     }
 
-    ctx.shadowColor = '#00FF00';
+    ctx.textAlign = 'center';
     ctx.shadowBlur = 10;
-    ctx.fillStyle = '#00FF00';
+    if (useHue) {
+      ctx.shadowColor = `hsl(${hue}, 100%, 50%)`;
+      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+    } else {
+      ctx.shadowColor = '#00FF00';
+      ctx.fillStyle = '#00FF00';
+    }
     ctx.font = '900 20px monospace';
     ctx.fillText(this.chars[this.y], this.x, this.y * 20);
 
   }
 }
-
-console.log('Canvas Size: ', canvas.width, canvas.height);
 
 for (let i = 0; i < rowLength; i++) {
   columnsArray.push(new Column(i * 20));
@@ -80,7 +88,6 @@ const render = (now: DOMHighResTimeStamp) => {
   
   // Run at 15 FPS
   if (fpsIntervalElapsed(now)) {
-    stats.begin();
 
     // Clear canvas
     ctx.shadowBlur = 0;
@@ -89,8 +96,8 @@ const render = (now: DOMHighResTimeStamp) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     columnsArray.forEach(column => column.draw());
-
-    stats.end();
+    hue += 2;
+    
   }
 
 }

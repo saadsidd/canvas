@@ -4,16 +4,30 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Canvas 1</title>
+  <title>Canvas 4</title>
   <style>
     body {
       background-color: black;
       margin: 0;
       overflow: hidden;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+    }
+
+    header {
+      color: white;
+      text-align: center;
+      background-color: rgb(40, 40, 40);
+      padding: 5px 0px;
     }
   </style>
 </head>
 <body>
+  <header>
+    matrix code rain / <input type="checkbox" id="hue-checkbox"> cycle hue
+  </header>
   <canvas id="canvas"></canvas>
   <script type="module" src="../dist/main4.js"></script>
 </body>
