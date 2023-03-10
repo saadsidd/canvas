@@ -3,10 +3,15 @@ import Stats from '../lib/stats.js';
 
 
 // Add an FPS tracker to top right corner
-export const stats = new Stats();
-stats.dom.style.right = '0px';
-stats.dom.style.left = '';
-document.body.appendChild(stats.dom);
+export const createStats = () => {
+  const stats = new Stats();
+  stats.dom.style.right = '0px';
+  stats.dom.style.left = '';
+  stats.dom.style.top = '';
+  document.body.appendChild(stats.dom);
+
+  return stats;
+}
 
 
 // Get random number between two numbers (min and max inclusive)
