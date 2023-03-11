@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas 5</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+    }
+
+    header {
+      color: white;
+      text-align: center;
+      background-color: rgb(40, 40, 40);
+      padding: 5px 0px;
+      position: relative;
+      z-index: 3;
+    }
+
+    body > canvas {
+      position: absolute;
+      margin: auto;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border: 2px solid white;
+    }
+
+    #foreground {
+      z-index: 2;
+    }
+
+    #background {
+      z-index: 1;
+      background-image: url('../assets/background/forest.png');
+    }
+  </style>
+</head>
+<body>
+  <header>
+    sprites?
+  </header>
+  <canvas id="foreground" width="1000" height="500"></canvas>
+  <canvas id="background" width="1000" height="500"></canvas>
+  <script type="module" src="../dist/main5.js"></script>
+</body>
+</html>
