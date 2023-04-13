@@ -7,7 +7,7 @@ export const createStats = () => {
   const stats = new Stats();
   stats.dom.style.right = '0px';
   stats.dom.style.left = '';
-  stats.dom.style.top = '';
+  // stats.dom.style.top = '';
   document.body.appendChild(stats.dom);
 
   return stats;
