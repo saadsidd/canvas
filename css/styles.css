@@ -33,13 +33,17 @@ a {
   color: black;
 }
 
+a > img {
+  width: 100%;
+}
+
 .project {
   width: 150px;
   min-height: 150px;
   background-color: burlywood;
   border: 3px solid rgb(34, 34, 34);
   margin: 10px 25px;
-  padding: 5px;
+  /* padding: 5px; */
   cursor: pointer;
   box-shadow: 
     rgba(0, 0, 0, 0.25) 3px 3px 12px,

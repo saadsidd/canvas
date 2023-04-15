@@ -10,12 +10,24 @@
 <body>
 
   <nav>
-    <a class="project" href="./html/canvas1.html" target="my-canvas">Canvas 1</a>
-    <a class="project" href="./html/canvas2.html" target="my-canvas">Canvas 2</a>
-    <a class="project" href="./html/canvas3.html" target="my-canvas">Canvas 3</a>
-    <a class="project" href="./html/canvas4.html" target="my-canvas">Canvas 4</a>
-    <a class="project" href="./html/canvas5.html" target="my-canvas">Canvas 5</a>
-    <a class="project" href="./html/canvas6.html" target="my-canvas">Canvas 6</a>
+    <a class="project" href="./html/canvas1.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas1-thumbnail.png">
+    </a>
+    <a class="project" href="./html/canvas2.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas2-thumbnail.png">
+    </a>
+    <a class="project" href="./html/canvas3.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas3-thumbnail.png">
+    </a>
+    <a class="project" href="./html/canvas4.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas4-thumbnail.png">
+    </a>
+    <a class="project" href="./html/canvas5.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas5-thumbnail.png">
+    </a>
+    <a class="project" href="./html/canvas6.html" target="my-canvas">
+      <img src="./assets/thumbnails/canvas6-thumbnail.png">
+    </a>
   </nav>
 
   <main>Select a canvas project</main>
@@ -30,7 +42,7 @@
 
     // Remove 'Select a canvas project' message and show iframe instead
     navBar.addEventListener('click', (event) => {
-      if (event.target.tagName === 'A') {
+      if (event.target.tagName === 'IMG') {
         if (initialMessage.style.display !== 'none') {
           initialMessage.style.display = 'none';
           iframe.style.display = 'block';
