@@ -1,5 +1,5 @@
 # Canvas Playground
-### [Try it out here!](https://www.saad.gg/canvas)
+### [Try it out here!](https://www.saadsiddiq.com/canvas)
 
 A collection of mini-projects made with 2D canvas and TypeScript.
 
